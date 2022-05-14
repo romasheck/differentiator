@@ -1,0 +1,9 @@
+G := E'$'
+E := T{+-T}*
+T := D{*/D}*
+D := P'^'P | P
+P := '('E')' | U
+U := N | [uop]P | V
+V := char
+N := number
+
