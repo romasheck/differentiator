@@ -13,6 +13,10 @@ int         DifLeaf         (Node* node_task, Node* node_answer);
 
 int         DifBOp          (Node* node_task, Node* node_answer);
 
+int         DifMul          (Node* node_task, Node* node_answer);
+
+int         DifDiv          (Node* node_task, Node* node_answer);
+
 int         DifUOp          (Node* node_task, Node* node_answer);
 
 int         CopyNodes       (Node* node_task, Node* node_answer);

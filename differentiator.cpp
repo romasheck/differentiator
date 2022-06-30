@@ -27,21 +27,21 @@ int GoDif (Tree* tree_task, Tree* tree_answer)
 {
     //PRINT_LINE
     DifNodes (THEAD(task), THEAD(answer));
-    PRINT_LINE
+    //PRINT_LINE
     return 0;
 }
 
 int DifNodes (Node* node_task, Node* node_answer)
 {
-    PRINT_LINE
+    //PRINT_LINE
     if (LNODE(task) == NULL && RNODE(task) == NULL)
     {
-        PRINT_LINE
+        //PRINT_LINE
         DifLeaf (NODES);
-        PRINT_LINE
+        //PRINT_LINE
         return 0;
     }
-    PRINT_LINE
+    //PRINT_LINE
     if (TYPE(task) == BIN_OPERATOR)
     {
         DifBOp (NODES);
@@ -60,14 +60,14 @@ int DifLeaf (Node* node_task, Node* node_answer)
     {
         TYPE(answer) = REAL_NUM;
         DATA(answer).r = 0;
-        PRINT_LINE
+        //PRINT_LINE
         return 0;
     }
     if (TYPE(task) == VARIABLE)
     {
         TYPE(answer) = REAL_NUM;
         DATA(answer).r = 1;
-        PRINT_LINE
+        //PRINT_LINE
         return 0;
     }
 
@@ -103,53 +103,13 @@ int DifBOp (Node* node_task, Node* node_answer)
         }
         case '*':
         {
-            DATA(answer).c = '+';
-
-            LNODE(answer)->T = BIN_OPERATOR;
-            RNODE(answer)->T = BIN_OPERATOR;
-            LNODE(answer)->D.c = '*';
-            RNODE(answer)->D.c = '*';
-
-            NodeInsert (LNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);
-            NodeInsert (LNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
-            NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);
-            NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
-
-            CopyNodes (RNODE(task), LNODE(answer)->R);
-            CopyNodes (LNODE(task), RNODE(answer)->L);
-
-            DifNodes (LNODE(task), LNODE(answer)->L);
-            DifNodes (RNODE(task), RNODE(answer)->R);
+            DifMul (NODES);
 
             break;
         }
         case '/':
         {
-            DATA(answer).c = '/';
-
-            LNODE(answer)->T = BIN_OPERATOR;
-            RNODE(answer)->T = BIN_OPERATOR;
-            LNODE(answer)->D.c = '-';
-            RNODE(answer)->D.c = '*';
-
-            NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);     //denominator = r*r
-            NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
-
-            CopyNodes (RNODE(task), RNODE(answer)->R);              
-            CopyNodes (RNODE(task), RNODE(answer)->L);
-            
-            NodeInsert (LNODE(answer),{BIN_OPERATOR, '*'}, LEFT_N);     //numeral = (l')*r - l*(r')
-            NodeInsert (LNODE(answer),{BIN_OPERATOR, '*'}, RIGHT_N);
-            NodeInsert (LNODE(answer)->R,{BIN_OPERATOR, '*'}, LEFT_N);
-            NodeInsert (LNODE(answer)->L,{BIN_OPERATOR, '*'}, RIGHT_N);
-            NodeInsert (LNODE(answer)->L, {NOT_A_TYPE, 0}, LEFT_N);
-            NodeInsert (LNODE(answer)->R, {NOT_A_TYPE, 0}, RIGHT_N);
-
-            CopyNodes (RNODE(task), LNODE(answer)->L->R);
-            CopyNodes (LNODE(task), LNODE(answer)->R->L);
-
-            DifNodes (LNODE(task), LNODE(answer)->L->L);
-            DifNodes (RNODE(task), LNODE(answer)->R->R);           
+            DifDiv (NODES);          
 
             break;
         }
@@ -158,6 +118,60 @@ int DifBOp (Node* node_task, Node* node_answer)
             return 1;
         }
     }
+
+    return 0;
+}
+
+int DifMul  (Node* node_task, Node* node_answer)
+{
+    DATA(answer).c = '+';
+
+    LNODE(answer)->T = BIN_OPERATOR;
+    RNODE(answer)->T = BIN_OPERATOR;
+    LNODE(answer)->D.c = '*';
+    RNODE(answer)->D.c = '*';
+
+    NodeInsert (LNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);
+    NodeInsert (LNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
+    NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);
+    NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
+
+    CopyNodes (RNODE(task), LNODE(answer)->R);
+    CopyNodes (LNODE(task), RNODE(answer)->L);
+
+    DifNodes (LNODE(task), LNODE(answer)->L);
+    DifNodes (RNODE(task), RNODE(answer)->R);
+
+    return 0;
+}
+
+int DifDiv (Node* node_task, Node* node_answer)
+{
+    DATA(answer).c = '/';
+
+    LNODE(answer)->T = BIN_OPERATOR;
+    RNODE(answer)->T = BIN_OPERATOR;
+    LNODE(answer)->D.c = '-';
+    RNODE(answer)->D.c = '*';
+
+    NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, LEFT_N);     //denominator = r*r
+    NodeInsert (RNODE(answer), {NOT_A_TYPE, 0}, RIGHT_N);
+
+    CopyNodes (RNODE(task), RNODE(answer)->R);              
+    CopyNodes (RNODE(task), RNODE(answer)->L);
+    
+    NodeInsert (LNODE(answer),{BIN_OPERATOR, '*'}, LEFT_N);     //numeral = (l')*r - l*(r')
+    NodeInsert (LNODE(answer),{BIN_OPERATOR, '*'}, RIGHT_N);
+    NodeInsert (LNODE(answer)->R,{BIN_OPERATOR, '*'}, LEFT_N);
+    NodeInsert (LNODE(answer)->L,{BIN_OPERATOR, '*'}, RIGHT_N);
+    NodeInsert (LNODE(answer)->L, {NOT_A_TYPE, 0}, LEFT_N);
+    NodeInsert (LNODE(answer)->R, {NOT_A_TYPE, 0}, RIGHT_N);
+
+    CopyNodes (RNODE(task), LNODE(answer)->L->R);
+    CopyNodes (LNODE(task), LNODE(answer)->R->L);
+
+    DifNodes (LNODE(task), LNODE(answer)->L->L);
+    DifNodes (RNODE(task), LNODE(answer)->R->R);  
 
     return 0;
 }
