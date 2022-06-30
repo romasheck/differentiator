@@ -215,8 +215,8 @@ int CopyNodes (Node* node_task, Node* node_answer)
     }
     if (LNODE(task) != NULL)
     {
-        NodeInsert(node_answer, {NOT_A_TYPE, 0}, LEFT_N);
-        CopyNodes(LNODES);
+        NodeInsert (node_answer, {NOT_A_TYPE, 0}, LEFT_N);
+        CopyNodes (LNODES);
     }
 
     TYPE(answer) = TYPE(task);
@@ -224,8 +224,8 @@ int CopyNodes (Node* node_task, Node* node_answer)
 
     if (RNODE(task) != NULL)
     {
-        NodeInsert(node_answer, {NOT_A_TYPE, 0}, RIGHT_N);
-        CopyNodes(RNODES);        
+        NodeInsert (node_answer, {NOT_A_TYPE, 0}, RIGHT_N);
+        CopyNodes (RNODES);        
     }
 
     return 0;
@@ -233,7 +233,7 @@ int CopyNodes (Node* node_task, Node* node_answer)
 
 int SimplifyExp (Tree* tree_exp)
 {
-    NodesCalc(THEAD(exp));
+    NodesCalc (THEAD(exp));
 
     return 0;
 }
@@ -244,16 +244,16 @@ int NodesCalc (Node* node_exp)
     {
         if (TYPE(exp->L) == BIN_OPERATOR || TYPE(exp->L) == UNO_OPERATOR)
         {
-            NodesCalc(node_exp->L);
+            NodesCalc (node_exp->L);
         }
         if (TYPE(exp->R) == BIN_OPERATOR || TYPE(exp->R) == UNO_OPERATOR)
         {
-            NodesCalc(node_exp->R);
+            NodesCalc (node_exp->R);
         }
 
         if (TYPE(exp->L) == REAL_NUM && TYPE(exp->R) == REAL_NUM)
         {
-            ArithmCalc(node_exp);
+            ArithmCalc (node_exp);
 
             return 0;
         }
@@ -261,16 +261,16 @@ int NodesCalc (Node* node_exp)
         switch (DATA(exp).c)
         {
         case '+':
-            ZeroPlus(node_exp);
+            ZeroPlus (node_exp);
             break;
         case '-':
-            ZeroSub(node_exp);
+            ZeroSub (node_exp);
             break;
         case '*':
-            ZeroOneMul(node_exp);
+            ZeroOneMul (node_exp);
             break;
         case '/':
-            OneDiv(node_exp);
+            OneDiv (node_exp);
             break;
         default:
             break;
@@ -278,9 +278,9 @@ int NodesCalc (Node* node_exp)
     }
     else
     {
-        if (TYPE(exp->L) == BIN_OPERATOR || TYPE(exp->L) == UNO_OPERATOR)
+        if ((TYPE(exp->L) == BIN_OPERATOR || TYPE(exp->L) == UNO_OPERATOR) && TYPE(exp) == UNO_OPERATOR)
         {
-            NodesCalc(node_exp->L);
+            NodesCalc (node_exp->L);
         }   
     }
 
@@ -309,27 +309,29 @@ int ArithmCalc (Node* node_exp)
         break;
     }
 
-    free(node_exp->L);
-    free(node_exp->R);
+    free (node_exp->L);
+    free (node_exp->R);
     node_exp->L = NULL;
     node_exp->R = NULL;
 
     return 0;
 }
 
+#undef REPLCE_BRANCH
+#define REPLACE_BRANCH(frst_side, scnd_side)\
+*node_exp = *node_exp->scnd_side;         \
+free(node_exp->frst_side);                \
+free(node_exp->scnd_side);
+
 int ZeroPlus (Node* node_exp)
 {
     if (DATA(exp->L).r == 0)
     {
-        Node* tmp_node = node_exp->R;
-        *node_exp = *node_exp->R;
-        free(node_exp->R);
-        free(node_exp->L);
+        REPLACE_BRANCH(L, R)
     }
     if (DATA(exp->R).r == 0)
     {
-        *node_exp = *node_exp->L;
-        free(node_exp->R);
+        REPLACE_BRANCH(R, L)
     }
 
     return 0;
@@ -339,10 +341,7 @@ int ZeroSub (Node* node_exp)
 {
     if (DATA(exp->R).r == 0)
     {
-        Node* tmp_node = node_exp->L;
-        *node_exp = *node_exp->L;
-        free(tmp_node); 
-        free(node_exp->R);
+       REPLACE_BRANCH(R, L)
     }
 
     return 0;
@@ -354,17 +353,11 @@ int ZeroOneMul (Node* node_exp)
     {
         if (DATA(exp->L).r == 1)
         {
-            free (node_exp->L);
-            Node* tmp_node = node_exp->R;
-            *node_exp = *node_exp->R;
-            free (tmp_node);
+            REPLACE_BRANCH(L, R)
         }
         if (DATA(exp->L).r == 0)
         {
-            NodesDtor(node_exp->R);
-            Node* tmp_node = node_exp->L;
-            *node_exp = *node_exp->L;
-            free (tmp_node); 
+            REPLACE_BRANCH(R, L) 
         }
     }
     else
@@ -373,17 +366,11 @@ int ZeroOneMul (Node* node_exp)
         {
             if (DATA(exp->R).r == 1)
             {
-                free (node_exp->R);
-                Node* tmp_node = node_exp->L;
-                *node_exp = *node_exp->L;
-                free (tmp_node);
+                REPLACE_BRANCH(R, L)
             }
             if (DATA(exp->R).r == 0)
             {
-                NodesDtor(node_exp->L);
-                Node* tmp_node = node_exp->R;
-                *node_exp = *node_exp->R;
-                free (tmp_node); 
+                REPLACE_BRANCH(L, R) 
             }
         }
     }
@@ -394,10 +381,8 @@ int OneDiv (Node* node_exp)
 {
     if (DATA(exp->R).r == 1)
     {
-        free (node_exp->R);
-        Node* tmp_node = node_exp->L;
-        *node_exp = *node_exp->L;
-        free (tmp_node);
+        REPLACE_BRANCH(R, L)
     }
 }
 
+#undef REPLACE_BRANCH
