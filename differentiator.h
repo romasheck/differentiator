@@ -21,6 +21,21 @@ int         DifUOp          (Node* node_task, Node* node_answer);
 
 int         CopyNodes       (Node* node_task, Node* node_answer);
 
+int         SimplifyExp     (Tree* tree_exp);
+
+int         NodesCalc       (Node* node_exp);
+
+int         ArithmCalc      (Node* node_exp);
+
+int         ZeroPlus        (Node* node_exp);
+
+int         ZeroSub         (Node* node_exp);
+
+int         ZeroOneMul      (Node* node_exp);
+
+int         OneDiv          (Node* node_exp);
+
+
 
 //undef our DSL:
 #undef LNODE

@@ -25,23 +25,21 @@ Tree* TakeTree (FILE* task)
 
 int GoDif (Tree* tree_task, Tree* tree_answer)
 {
-    //PRINT_LINE
     DifNodes (THEAD(task), THEAD(answer));
-    //PRINT_LINE
+
     return 0;
 }
 
 int DifNodes (Node* node_task, Node* node_answer)
 {
-    //PRINT_LINE
+
     if (LNODE(task) == NULL && RNODE(task) == NULL)
     {
-        //PRINT_LINE
         DifLeaf (NODES);
-        //PRINT_LINE
+
         return 0;
     }
-    //PRINT_LINE
+
     if (TYPE(task) == BIN_OPERATOR)
     {
         DifBOp (NODES);
@@ -60,14 +58,14 @@ int DifLeaf (Node* node_task, Node* node_answer)
     {
         TYPE(answer) = REAL_NUM;
         DATA(answer).r = 0;
-        //PRINT_LINE
+
         return 0;
     }
     if (TYPE(task) == VARIABLE)
     {
         TYPE(answer) = REAL_NUM;
         DATA(answer).r = 1;
-        //PRINT_LINE
+
         return 0;
     }
 
@@ -232,3 +230,174 @@ int CopyNodes (Node* node_task, Node* node_answer)
 
     return 0;
 }
+
+int SimplifyExp (Tree* tree_exp)
+{
+    NodesCalc(THEAD(exp));
+
+    return 0;
+}
+
+int NodesCalc (Node* node_exp)
+{
+    if (TYPE(exp) == BIN_OPERATOR)
+    {
+        if (TYPE(exp->L) == BIN_OPERATOR || TYPE(exp->L) == UNO_OPERATOR)
+        {
+            NodesCalc(node_exp->L);
+        }
+        if (TYPE(exp->R) == BIN_OPERATOR || TYPE(exp->R) == UNO_OPERATOR)
+        {
+            NodesCalc(node_exp->R);
+        }
+
+        if (TYPE(exp->L) == REAL_NUM && TYPE(exp->R) == REAL_NUM)
+        {
+            ArithmCalc(node_exp);
+
+            return 0;
+        }
+
+        switch (DATA(exp).c)
+        {
+        case '+':
+            ZeroPlus(node_exp);
+            break;
+        case '-':
+            ZeroSub(node_exp);
+            break;
+        case '*':
+            ZeroOneMul(node_exp);
+            break;
+        case '/':
+            OneDiv(node_exp);
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        if (TYPE(exp->L) == BIN_OPERATOR || TYPE(exp->L) == UNO_OPERATOR)
+        {
+            NodesCalc(node_exp->L);
+        }   
+    }
+
+    return 0;
+}
+
+int ArithmCalc (Node* node_exp)
+{
+    TYPE(exp) = REAL_NUM;
+
+    switch (DATA(exp).c)
+    {
+    case '+':
+        DATA(exp).r = DATA(exp->L).r + DATA(exp->R).r;
+        break;
+    case '-':
+        DATA(exp).r = DATA(exp->L).r - DATA(exp->R).r;
+        break;
+    case '*':
+        DATA(exp).r = DATA(exp->L).r * DATA(exp->R).r;
+        break;
+    case '/':
+        DATA(exp).r = DATA(exp->L).r / DATA(exp->R).r;
+        break;
+    default:
+        break;
+    }
+
+    free(node_exp->L);
+    free(node_exp->R);
+    node_exp->L = NULL;
+    node_exp->R = NULL;
+
+    return 0;
+}
+
+int ZeroPlus (Node* node_exp)
+{
+    if (DATA(exp->L).r == 0)
+    {
+        Node* tmp_node = node_exp->R;
+        *node_exp = *node_exp->R;
+        free(node_exp->R);
+        free(node_exp->L);
+    }
+    if (DATA(exp->R).r == 0)
+    {
+        *node_exp = *node_exp->L;
+        free(node_exp->R);
+    }
+
+    return 0;
+}
+
+int ZeroSub (Node* node_exp)
+{
+    if (DATA(exp->R).r == 0)
+    {
+        Node* tmp_node = node_exp->L;
+        *node_exp = *node_exp->L;
+        free(tmp_node); 
+        free(node_exp->R);
+    }
+
+    return 0;
+}
+
+int ZeroOneMul (Node* node_exp)
+{
+    if (TYPE(exp->L) == REAL_NUM)
+    {
+        if (DATA(exp->L).r == 1)
+        {
+            free (node_exp->L);
+            Node* tmp_node = node_exp->R;
+            *node_exp = *node_exp->R;
+            free (tmp_node);
+        }
+        if (DATA(exp->L).r == 0)
+        {
+            NodesDtor(node_exp->R);
+            Node* tmp_node = node_exp->L;
+            *node_exp = *node_exp->L;
+            free (tmp_node); 
+        }
+    }
+    else
+    {
+        if (TYPE(exp->R) == REAL_NUM)
+        {
+            if (DATA(exp->R).r == 1)
+            {
+                free (node_exp->R);
+                Node* tmp_node = node_exp->L;
+                *node_exp = *node_exp->L;
+                free (tmp_node);
+            }
+            if (DATA(exp->R).r == 0)
+            {
+                NodesDtor(node_exp->L);
+                Node* tmp_node = node_exp->R;
+                *node_exp = *node_exp->R;
+                free (tmp_node); 
+            }
+        }
+    }
+    return 0;
+}
+
+int OneDiv (Node* node_exp)
+{
+    if (DATA(exp->R).r == 1)
+    {
+        free (node_exp->R);
+        Node* tmp_node = node_exp->L;
+        *node_exp = *node_exp->L;
+        free (tmp_node);
+    }
+}
+

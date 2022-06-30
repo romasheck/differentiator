@@ -1,24 +1,14 @@
 digraph G{
     graph [ rankdir=UD ]
-    N00FE6D38 [label = "1.00"];
-    N00FE6CF0 [label = "-"];
-    N00FE6EF8 [label = "8.00"];
-    N00FE6EA8 [label = "*"];
-    N00FE6F70 [label = "x"];
-    N00FE6F48 [label = "/"];
-    N00FEB618 [label = "6.00"];
-    N00FEB690 [label = "*"];
-    N00FEB3C0 [label = "x"];
-    N00FE6FC0 [label = "s"];
-    N00FE6DB0 [label = "c"];
-    N00FE6CF0 -> N00FE6D38 ;
-    N00FE6CF0 -> N00FE6DB0 ;
-    N00FE6DB0 -> N00FE6EA8 ;
-    N00FE6EA8 -> N00FE6EF8 ;
-    N00FE6EA8 -> N00FE6F48 ;
-    N00FE6F48 -> N00FE6F70 ;
-    N00FE6F48 -> N00FE6FC0 ;
-    N00FE6FC0 -> N00FEB690 ;
-    N00FEB690 -> N00FEB618 ;
-    N00FEB690 -> N00FEB3C0 ;
+    N00ED6D58 [label = "3.00"];
+    N00ED6CF0 [label = "*"];
+    N00ED6ED0 [label = "2.00"];
+    N00ED6E80 [label = "/"];
+    N00ED6F20 [label = "x"];
+    N00ED6DA8 [label = "s"];
+    N00ED6CF0 -> N00ED6D58 ;
+    N00ED6CF0 -> N00ED6DA8 ;
+    N00ED6DA8 -> N00ED6E80 ;
+    N00ED6E80 -> N00ED6ED0 ;
+    N00ED6E80 -> N00ED6F20 ;
 }
